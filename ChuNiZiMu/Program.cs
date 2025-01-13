@@ -114,7 +114,7 @@ public static class Program
 		{
 			while (true)
 			{
-				Console.WriteLine("Please enter the number of the affected songs and input a blank line or EOF to finish");
+				Console.WriteLine("Please enter the number of the affected songs and input a blank line or EOF to finish({0}-{1})",1,songs.Count);
 				string? effectString = Console.ReadLine();
 				if (string.IsNullOrEmpty(effectString))
 				{
@@ -142,9 +142,12 @@ public static class Program
 							{
 								continue;
 							}
+							Array effects = Enum.GetValues(typeof(Models.EffectType));
+							Random effectRandom = new Random();
 							songs[affectedIndex - 1].IsAffected = true;
-							songs[affectedIndex - 1].AffectedList = [Models.EffectType.EncryptedFixed]; //todo
-							songs[affectedIndex - 1].setAffectedTitle();
+							//songs[affectedIndex - 1].AffectedList = [Models.EffectType.Lacked];
+                            songs[affectedIndex - 1].AffectedList = [(Models.EffectType)effects.GetValue(effectRandom.Next(effects.Length))];
+                            songs[affectedIndex - 1].setAffectedTitle();
 						}
 
 					}
@@ -272,7 +275,7 @@ public static class Program
 
 			Console.BackgroundColor = ConsoleColor.DarkBlue;
 			Console.ForegroundColor = ConsoleColor.White;
-			Console.WriteLine("<single char> - reveal, :d <num> - directly complete a song, :q - quit");
+			Console.WriteLine("<single char> - reveal, :d <num> - directly complete a song, :c <num> - clear a song effect ,:q - quit");
 			Console.Write("Input: ");
 
 			string option = Console.ReadLine() ?? string.Empty;
@@ -282,6 +285,12 @@ public static class Program
 				var targetSong = songs[(int) num - 1];
 				targetSong.RevealAll();
 			}
+			if (option.StartsWith(":c") && option.Split(' ').Length > 1 && uint.TryParse(option.Split(' ')[1], out uint c_num) && c_num <= songs.Count)
+			{
+				var targetSong = songs[(int) c_num - 1];
+				targetSong.ClearEffect();
+			}
+
 			else if (option == ":q")
 			{
 				Console.WriteLine("Game quit.");

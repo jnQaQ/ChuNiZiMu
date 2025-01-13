@@ -90,7 +90,7 @@ public class Song
 	/// <returns>该字母的揭露结果。</returns>
 	public RevealResult RevealLetter(char letter)
 	{
-		if (new string(RevealedCharacters.ToArray()).Equals(FullSecretSongTitle, StringComparison.OrdinalIgnoreCase)) // 忽略大小写，只要字母&特殊字符一样即可，无需必须大小写严格一致
+        if (new string(RevealedCharacters.ToArray()).Equals(FullSecretSongTitle, StringComparison.OrdinalIgnoreCase)) // 忽略大小写，只要字母&特殊字符一样即可，无需必须大小写严格一致
 		{
 			return RevealResult.AlreadyCompleted; // 此曲目已经完全揭露
 		}
@@ -119,13 +119,11 @@ public class Song
 				HiddenSongTitle[i] = letter;
 			}
 		}
-		
-		if (IsAffected)
-		{
-            AffectedSongTitle = SongStringProcessingClass.AddEffect(HiddenSongTitle, AffectedList, EffectSeed);
+        if (IsAffected)
+        {
+			setAffectedTitle();
         }
-
-		if (!HiddenSongTitle.Contains('?')) // 如果没有问号了，说明已经完全揭露，此时将“揭露结果”显示为实际大小写的完整曲名（而不是全小写的）
+        if (!HiddenSongTitle.Contains('?')) // 如果没有问号了，说明已经完全揭露，此时将“揭露结果”显示为实际大小写的完整曲名（而不是全小写的）
 		{
 			HiddenSongTitle = FullSecretSongTitle.ToCharArray();
 			IsCompletedRevealed = true;
@@ -140,6 +138,10 @@ public class Song
 		IsCompletedRevealed = true;
 	}
 
+	public void ClearEffect()
+	{
+		IsAffected = false;
+	}
 	public override string ToString()
 	{
 		if (!HiddenSongTitle.Contains('?'))
@@ -156,7 +158,16 @@ public class Song
 		}
 		else
 		{
-			AffectedSongTitle = SongStringProcessingClass.AddEffect(HiddenSongTitle, AffectedList, EffectSeed);
+			if(AffectedList.Contains(EffectType.Invisible))
+			{
+				int completed_length = HiddenSongTitle.Count( n  => n != '?' );
+				AffectedSongTitle = String.Format("({0}/{1})",completed_length,HiddenSongTitle.Length).ToCharArray();
+			}
+			else 
+			{
+                AffectedSongTitle = SongStringProcessingClass.AddEffect(HiddenSongTitle, AffectedList, EffectSeed);
+            }
+			
 		}
 	}
 }

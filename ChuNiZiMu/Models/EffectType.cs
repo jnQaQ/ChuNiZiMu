@@ -10,7 +10,5 @@ public enum EffectType
 	Reversed = 200,   // 谜面被左右反转
 	Lacked = 300,   //谜面中的部分字母完全消失
 	Transposed = 400,   // 谜面中的部分字母被随机调换顺序
-	Forward = 500,  // 谜面显示的揭露字母被随机前移1-3个字母
-	Backward = 600, // 谜面显示的揭露字母被随机后移1-3个字母
 	Invisible = 700,   // 谜面完全不可见，只能看到猜测进度
 }
