@@ -11,18 +11,18 @@ public static class Program
 		if (args.Contains("--help"))
 		{
 			Console.WriteLine("Chu Ni Zi Mu is a tiny utility to manage the game which to guess the song name by the revealed characters in the song title.\n" +
-			                  "Usage: chunizimu [options]\n" +
-			                  "\n" +
-			                  "Options:" +
-			                  "--help		   \tShow this help message and exit.\n" +
-			                  "<no options>    \tStart the game session.");
+							  "Usage: chunizimu [options]\n" +
+							  "\n" +
+							  "Options:" +
+							  "--help		   \tShow this help message and exit.\n" +
+							  "<no options>    \tStart the game session.");
 			return;
 		}
 
 		if (args.Length > 0)
 		{
 			Console.Error.WriteLine($"Unknown argument: {args[0]}.\n" +
-			                        "Use chunizimu --help to show help message.");
+									"Use chunizimu --help to show help message.");
 			return;
 		}
 
@@ -56,11 +56,11 @@ public static class Program
 		}
 
 		Console.WriteLine("Show correct answers during every round in the game session (for reference)?\n" +
-		                  "This should be set true when and ONLY when just using this tool as a game backend manager, instead of a game player. (Y/n)");
+						  "This should be set true when and ONLY when just using this tool as a game backend manager, instead of a game player. (Y/n)");
 		bool showCorrectAnswers = (Console.ReadLine() ?? string.Empty).Trim().ToLower() != "n";
 
 		Console.WriteLine("Add the revealed letter EVEN THOUGH the letter doesn't exist in any song title?\n" +
-		                  "By enabling this feature, the revealed letter list will act better as a hint list, which was widely used in the real game chat before. (Y/n)");
+						  "By enabling this feature, the revealed letter list will act better as a hint list, which was widely used in the real game chat before. (Y/n)");
 		bool preserveAnyRevealedLetter = (Console.ReadLine() ?? string.Empty).Trim().ToLower() != "n";
 
 		Console.WriteLine("Is there a Bonus track set? Bonus tracks will be highlighted in a special color. (y/N)");
@@ -114,7 +114,42 @@ public static class Program
 		{
 			while (true)
 			{
-				
+				Console.WriteLine("Please enter the number of the affected songs and input a blank line or EOF to finish");
+				string? effectString = Console.ReadLine();
+				if (string.IsNullOrEmpty(effectString))
+				{
+					Console.WriteLine("If you want to confirm that you don't set the effect, please enter the \"ENTER\" again to confirm.");
+					string? confirmString = Console.ReadLine();
+					if (string.IsNullOrEmpty(confirmString))
+					{
+						break;
+					}
+				}
+				else
+				{
+					Regex regex = new Regex("[^0-9]+$");
+					if (regex.IsMatch(effectString))
+					{
+						Console.WriteLine("Error: You entered a character other than a number, please press enter key to re-enter");
+						continue;
+					}
+					else
+					{
+						int[] affectedList = Array.ConvertAll(effectString.Split(" "), int.Parse);
+						foreach (int affectedIndex in affectedList)
+						{
+							if (affectedIndex > songs.Count)
+							{
+								continue;
+							}
+							songs[affectedIndex - 1].IsAffected = true;
+							songs[affectedIndex - 1].AffectedList = [Models.EffectType.EncryptedFixed]; //todo
+							songs[affectedIndex - 1].setAffectedTitle();
+						}
+
+					}
+				}
+				break;
 			}
 		}
 		
@@ -184,7 +219,15 @@ public static class Program
 
 					Console.Write($"[{i + 1}] ");
 					Console.ResetColor();
-					Console.WriteLine($"{new string(song.HiddenSongTitle)}");
+					if(song.IsAffected)
+					{
+						Console.WriteLine($"{new string(song.AffectedSongTitle)}");
+					}
+					else
+					{
+						Console.WriteLine($"{new string(song.HiddenSongTitle)}");
+					}
+					//Console.WriteLine($"{new string(song.HiddenSongTitle)}");
 					//Console.WriteLine($"[{i + 1}] {new string(song.HiddenSongTitle)}");
 				}
 			}
@@ -201,8 +244,8 @@ public static class Program
 				stopwatch.Stop();
 				TimeSpan timeSpan = stopwatch.Elapsed;
 				Console.WriteLine("Game result statistics:\n" +
-				                  $"Total rounds: {round}\n" +
-                                  "Total used time: {0:D2}:{1:D2}:{2:D2}", timeSpan.Hours, timeSpan.Minutes,timeSpan.Seconds);
+								  $"Total rounds: {round}\n" +
+								  "Total used time: {0:D2}:{1:D2}:{2:D2}", timeSpan.Hours, timeSpan.Minutes,timeSpan.Seconds);
 				Console.WriteLine("Press any key to quit.");
 				Console.ReadKey(true);
 				Console.ResetColor();

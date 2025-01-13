@@ -30,13 +30,23 @@ public class Song
 	/// <summary>
 	/// 该曲目是否受到特殊效果影响。
 	/// </summary>
-	public bool Affected { get; init; }
+	public bool IsAffected { get; set; }
 	
 	/// <summary>
 	/// 该曲目特殊效果列表。
 	/// </summary>
-	public int[] AffectedList { get; set; }
-	
+	public Models.EffectType[] AffectedList { get; set; }
+
+    /// <summary>
+    /// 该曲目在特殊效果状态下揭露的曲名。
+    /// </summary>
+    public char[] AffectedSongTitle { get; set; }
+
+	///<summary>
+	/// 该曲目特殊效果随机种子。
+	///</summary>
+	private int EffectSeed = (int)DateTime.Now.Ticks;
+
     /// <summary>
     /// 该曲目当前已揭露的曲名。(初始状态下为全问号；如果设置了<c>revealSpacesInitially = true</c>，则初始状态下除空格外的字符均为问号)
     /// </summary>
@@ -110,6 +120,11 @@ public class Song
 			}
 		}
 		
+		if (IsAffected)
+		{
+            AffectedSongTitle = SongStringProcessingClass.AddEffect(HiddenSongTitle, AffectedList, EffectSeed);
+        }
+
 		if (!HiddenSongTitle.Contains('?')) // 如果没有问号了，说明已经完全揭露，此时将“揭露结果”显示为实际大小写的完整曲名（而不是全小写的）
 		{
 			HiddenSongTitle = FullSecretSongTitle.ToCharArray();
@@ -132,5 +147,16 @@ public class Song
 			HiddenSongTitle = FullSecretSongTitle.ToCharArray();
 		}
 		return new string(HiddenSongTitle);
+	}
+	public void setAffectedTitle()
+	{
+		if(!IsAffected || AffectedList.Length == 0)
+		{
+			return;
+		}
+		else
+		{
+			AffectedSongTitle = SongStringProcessingClass.AddEffect(HiddenSongTitle, AffectedList, EffectSeed);
+		}
 	}
 }
